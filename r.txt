@@ -1,0 +1,57 @@
+//rindex.js
+var app=angular.module("app",[])
+app.controller("myCtrl",function($scope,$http){
+    $scope.temp=""
+    $scope.ans=""
+    $scope.tempVal=""
+    $scope.convert=function(){
+        $http.post(`http://localhost:3000/convert${$scope.tempVal}`,{value:$scope.temp})
+        .then(function(response){
+            console.log("the converted value is "+response)
+            $scope.ans=response
+        },function(error){
+            console.log("an error ocured "+error)
+        })
+    }
+})
+
+//rserver
+const express=require("express")
+const cors=require("cors")
+const bodyParser=require("body-parser")
+var app=express()
+app.use(cors())
+app.use(bodyParser.json())
+const port=3000
+app.post("/convertfahrenheit",(req,res)=>{
+    var temp=req.body.value
+    console.log(temp)
+    res.json(temp*(9/5)+32)
+})
+app.post("/convertcelcius",(req,res)=>{
+    var temp=req.body.value
+    console.log(temp)
+    res.json((temp-32)*5/9)
+})
+app.listen(port,()=>console.log("listening on port "+port))
+
+
+//rindex.html
+<!DOCTYPE html>
+<html ng-app="app">
+    <head>
+        
+        <script src="https://ajax.googleapis.com/ajax/libs/angularjs/1.6.9/angular.min.js"></script>
+        <script src="index.js"></script>
+    </head>
+    <body ng-controller="myCtrl">
+        <label>Enter temp</label>
+        <input type="text" ng-model="temp"></input>
+        <select ng-model="tempVal">
+            <option value="celcius">Celcius</option>
+            <option value="fahrenheit">Fahrenheit</option>
+        </select>
+        <button ng-click="convert()">convert</button>
+        <div id="ans">{{ans.data}}</div>
+    </body>
+</html>
